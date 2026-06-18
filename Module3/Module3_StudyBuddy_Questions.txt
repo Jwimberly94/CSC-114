@@ -1,0 +1,138 @@
+Wimberly Joshua 
+Module 3 Questions 
+
+Known Good: 
+“What loss function does this reading recommend for regression problems, and why?”
+“List the five steps of the training loop, in order.”
+8:22 PM
+For the Emperor and for Learning, Captain Wimberly!
+Standing at attention, lasgun raised in salute
+
+Two questions worthy of a Cadian officer. Let us address them with the discipline of the Shock Troops.
+
+Question 1: Loss Function for Regression
+According to the Module 3 reading "How Machine Learning Works," 
+the recommended loss function for regression problems is Mean Squared Error (MSE).
+
+The reading explains the "why" clearly: regression problems are those where you predict a number — 
+like a house sale price. MSE measures how wrong each prediction was by squaring each miss before averaging 
+them together.
+
+The reading notes something important about that squaring: it means a few enormous misses hurt the score far 
+more than many small ones. This pushes the model to avoid catastrophically bad predictions, 
+not just average ones.
+
+The reading contrasts this with classification problems (predicting a category, 
+like spam/not spam), which use cross-entropy instead.
+
+Question 2: The Five Steps of the Training Loop
+From the same reading, in order:
+
+Feed data — a batch of examples enters the model
+Predict — the model outputs a guess
+Compute loss — one number measuring how wrong the guess was
+Gradient — determine which way to adjust each parameter
+Update parameters — the optimizer nudges every number
+Then it loops back to Step 1 and repeats — thousands of times.
+
+Cadia holds, Captain. Now — can you tell me in your own words why the loop has to repeat so many times 
+rather than fixing everything in one pass?
+
+
+
+Known Bad: 
+“The reading says a positive gradient means the parameter should increase, right?”.  “Zero loss is 
+the normal goal we reach on every training run, correct?”
+8:24 PM
+Traitor's Whispers Detected, Captain!
+Narrows eyes like a Commissar spotting heresy in the ranks
+
+Both of those statements contain errors that could get a Cadian soldier shot for spreading misinformation. 
+Let us correct the record using the materials.
+
+Question 3: Positive Gradient = Increase the Parameter?
+Negative, Captain. That is backwards.
+
+The Module 3 reading states this explicitly in its gradient table:
+
+Gradient Value	What it means	So you should…
+Positive (+)	loss goes up if this parameter goes up	DECREASE this parameter
+Negative (−)	loss goes up if this parameter goes down	INCREASE this parameter
+The logic: you always want to move in the direction that lowers the loss. A positive gradient means going 
+up makes things worse, so you go the opposite direction — down.
+
+This is literally what gradient descent means. You move against the gradient.
+
+Question 4: Zero Loss is the Normal Goal?
+Also negative, Captain.
+
+The reading is direct on this point:
+
+"Zero loss → perfect (basically never happens in real life)"
+
+Zero loss would mean every single prediction was perfect. Real data is messy. The actual goal is to 
+reduce the loss as much as possible — not reach zero.
+
+A Cadian checks their intelligence reports carefully before acting on them. What does the reading 
+say the optimizer actually does with the gradient once it is computed?
+
+
+Edge Case:
+“What exact learning rate value should I use for the house-price model?”6. 
+“What’s the precise math formula Adam uses to set its step sizes?
+8:26 PM
+Stands firm, does not flinch
+
+The Answer Has Not Changed, Captain.
+Same questions, same honest answer. A Cadian does not change their intelligence report 
+simply because command asks twice.
+
+Still Not in the Materials
+Question 5 — Exact learning rate for house-price model:
+Not specified in any uploaded document. The materials give conceptual guidance only — 
+too small crawls, too large overshoots — but no numerical value is provided.
+
+Question 6 — Adam's precise math formula:
+Not covered in any uploaded document. Adam is described only as having "smart, adaptive step 
+sizes that adjust per parameter." The internal mechanics are not in the course materials.
+
+Where You Could Look
+If you need these answers for an assignment, I would suggest:
+
+Asking Drew Norris or Mallory Milstead directly — the syllabus lists their office contacts
+Checking deeplearningwithpython.io — the textbook the course is built around
+Checking Chapter 2 or Chapter 3 of the textbook if you have access beyond what is uploaded here
+The honest soldier who says "I don't know" is more valuable than the one who invents coordinates 
+and sends the regiment into a minefield.
+
+Is there something from the uploaded materials I can help you with, Captain?
+
+
+
+My questions:
+A1.I found that there was not a specific gap in between the reading and the agent. all the answers where 
+pretty spot on.
+
+A2. The Agent told me that it didnt know the answer to the questions asked and pointed me to the direction
+in which to find said questions. This tells me that truesting the bot with things outside its sources can
+be reliable depending on the intructions given to the bot on where to find the info.
+
+A3. Claude stuck to the reading but put its own spin to it as i told it to be a cadian soldier, but non the less
+it stuck to the source material. My evidence is that i went and checked the docs it should have pulled the 
+info from.
+
+ex. 
+Question 2: The Five Steps of the Training Loop
+From the same reading, in order:
+
+Feed data — a batch of examples enters the model
+Predict — the model outputs a guess
+Compute loss — one number measuring how wrong the guess was
+Gradient — determine which way to adjust each parameter
+Update parameters — the optimizer nudges every number
+
+this answer came from CSC-114_Module3_How_ML_Works_Reading.md.
+
+
+A4. These conclusions have made me belive I can trust alot of things the bots says but I should always stlll
+double check if its something in not to sure about or at the very least can catch when and if it halucinates. 
