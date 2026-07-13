@@ -40,21 +40,28 @@ TARGET_COLUMN = "median_listing_price"
 data_path = os.path.join(os.path.dirname(__file__), "alabama_housing.csv")
 features = []
 targets = []
+months = []
 with open(data_path, newline="", encoding="utf-8") as f:
     reader = csv.DictReader(f)
     for row in reader:
+        months.append(int(row["month_date_yyyymm"]))
         features.append([float(row[c]) for c in FEATURE_COLUMNS])
         targets.append(float(row[TARGET_COLUMN]))
 
 features = np.array(features, dtype="float32")
 targets = np.array(targets, dtype="float32")
+months = np.array(months, dtype="int32")
 
-# The CSV is grouped by month/county, so shuffle before splitting to make sure
-# both the train and test sets contain a representative mix of counties and years.
-rng = np.random.default_rng(seed=42)
-shuffled = rng.permutation(len(features))
-split = int(0.8 * len(features))
-train_idx, test_idx = shuffled[:split], shuffled[split:]
+# Chronological split to avoid temporal leakage:
+# train on 2016-2024, test on 2025-2026.
+train_idx = np.where(months <= 202412)[0]
+test_idx = np.where(months >= 202501)[0]
+
+if len(train_idx) == 0 or len(test_idx) == 0:
+    raise ValueError(
+        "Chronological split failed: expected rows for train (<=202412) and "
+        "test (>=202501)."
+    )
 
 train_data, test_data = features[train_idx], features[test_idx]
 train_targets, test_targets = targets[train_idx], targets[test_idx]

@@ -6,9 +6,10 @@ Context for anyone (human or AI assistant) picking up this work.
 
 - `my_housing_model.py` — a **minimal** Keras regression baseline, now trained
   on real Alabama county-level housing market data (`alabama_housing.csv`).
-  Pipeline: load CSV → shuffle/split 80/20 → normalize features → scale target
-  → build (1 hidden layer, 64 ReLU units) → compile (Adam / MSE, MAE metric) →
-  fit (20 epochs) → evaluate on the test set → print predictions.
+  Pipeline: load CSV → chronological split (train: 2016-2024, test: 2025-2026)
+  → normalize features → scale target → build (1 hidden layer, 64 ReLU units)
+  → compile (Adam / MSE, MAE metric) → fit (20 epochs) → evaluate on the
+  test set → print predictions.
   Intentionally simple; meant to be improved one change at a time.
 - `alabama_housing.csv` — 6,902 rows (67 Alabama counties × ~103 months,
   2016-07 to 2026-06), derived from realtor.com's public Housing Market
@@ -38,8 +39,8 @@ Context for anyone (human or AI assistant) picking up this work.
 python my_housing_model.py
 ```
 
-Current baseline result: Test MAE ≈ 0.50 (× $100,000), i.e. off by about
-$50,000 on average.
+Current baseline result (chronological split): Test MAE ≈ 0.58 (× $100,000),
+i.e. off by about $58,000 on average.
 
 ## Completed step
 
@@ -47,7 +48,8 @@ Swapped the dataset from **California to Alabama** (see commit history).
 Keras has no built-in Alabama dataset, so it was replaced with a real,
 sourced CSV of Alabama county housing-market metrics, loaded manually in
 `my_housing_model.py` step 1 (feature/target column lists, CSV read via
-`csv.DictReader`, shuffle with a fixed seed, 80/20 train/test split).
+`csv.DictReader`, chronological split using `month_date_yyyymm` to reduce
+time leakage).
 
 Note: unlike California's per-block-group demographic features (income,
 rooms, population, lat/long), the Alabama features are market-activity
