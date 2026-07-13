@@ -1,24 +1,63 @@
 """
-My first California Housing regression model.
+My first Alabama Housing regression model.
 A minimal build -> compile -> fit -> predict pipeline. We'll improve it later.
 """
 
+import csv
 import os
 
 # Keras 3 can run on JAX, TensorFlow, or PyTorch. Pick JAX to match requirements.txt.
 os.environ.setdefault("KERAS_BACKEND", "jax")
 
 import keras
+import matplotlib
+import numpy as np
 from keras import layers
-from keras.datasets import california_housing
+
+# Codespaces are headless (no display), so save plots to PNG files instead of
+# trying to open a window.
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 
 # ---- 1. LOAD THE DATA ----
-# Each row describes a California neighborhood (median income, house age, etc.);
-# the target is that neighborhood's median house price.
-(train_data, train_targets), (test_data, test_targets) = (
-    california_housing.load_data(version="small")
-)
+# Each row is one Alabama county in one month (2016-2026); the target is that
+# county's median home *listing* price for the month. Source: alabama_housing.csv,
+# built from realtor.com's public county-level housing market research data
+# (https://www.realtor.com/research/data/), filtered to Alabama counties.
+FEATURE_COLUMNS = [
+    "active_listing_count",
+    "median_days_on_market",
+    "new_listing_count",
+    "price_increased_count",
+    "price_reduced_count",
+    "pending_listing_count",
+    "median_square_feet",
+    "total_listing_count",
+]
+TARGET_COLUMN = "median_listing_price"
+
+data_path = os.path.join(os.path.dirname(__file__), "alabama_housing.csv")
+features = []
+targets = []
+with open(data_path, newline="", encoding="utf-8") as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        features.append([float(row[c]) for c in FEATURE_COLUMNS])
+        targets.append(float(row[TARGET_COLUMN]))
+
+features = np.array(features, dtype="float32")
+targets = np.array(targets, dtype="float32")
+
+# The CSV is grouped by month/county, so shuffle before splitting to make sure
+# both the train and test sets contain a representative mix of counties and years.
+rng = np.random.default_rng(seed=42)
+shuffled = rng.permutation(len(features))
+split = int(0.8 * len(features))
+train_idx, test_idx = shuffled[:split], shuffled[split:]
+
+train_data, test_data = features[train_idx], features[test_idx]
+train_targets, test_targets = targets[train_idx], targets[test_idx]
 print("Train features:", train_data.shape, " Test features:", test_data.shape)
 
 # Normalize features: subtract the mean, divide by the standard deviation, using
@@ -64,7 +103,7 @@ model.compile(
 # ---- 4. FIT (TRAIN) THE MODEL ----
 # Show the data to the model repeatedly (epochs) in small groups (batch_size),
 # nudging the weights each time to reduce the loss.
-model.fit(x_train, y_train, epochs=20, batch_size=16, verbose=1)
+history = model.fit(x_train, y_train, epochs=20, batch_size=16, verbose=1)
 
 
 # ---- 5. EVALUATE & PREDICT ----
@@ -72,7 +111,30 @@ model.fit(x_train, y_train, epochs=20, batch_size=16, verbose=1)
 test_loss, test_mae = model.evaluate(x_test, y_test, verbose=0)
 print("\nTest MAE:", round(float(test_mae), 3), "(x $100,000)")
 
-# Predict prices for the first 5 test neighborhoods and compare to the truth.
+# Predict prices for the first 5 test county/month rows and compare to the truth.
 predictions = model.predict(x_test[:5])
 for i in range(5):
     print(f"Predicted: {predictions[i][0]:.2f}   Actual: {y_test[i]:.2f}")
+
+
+# ---- 6. PLOT TRAINING HISTORY ----
+# Chart how the training loss (MSE) and MAE improved epoch by epoch, and save
+# it next to this script so you don't need a display to see it.
+plot_path = os.path.join(os.path.dirname(__file__), "training_history.png")
+epochs = range(1, len(history.history["loss"]) + 1)
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
+
+ax1.plot(epochs, history.history["loss"])
+ax1.set_xlabel("Epoch")
+ax1.set_ylabel("Training loss (MSE)")
+ax1.set_title("Loss per epoch")
+
+ax2.plot(epochs, history.history["mean_absolute_error"])
+ax2.set_xlabel("Epoch")
+ax2.set_ylabel("Training MAE (x $100,000)")
+ax2.set_title("MAE per epoch")
+
+fig.tight_layout()
+fig.savefig(plot_path, dpi=120, bbox_inches="tight")
+print(f"\nSaved training plot to {plot_path}")
